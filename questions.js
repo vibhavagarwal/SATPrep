@@ -1,4 +1,7 @@
 window.QUESTION_BANK = [
+  // ========================================================
+  // BATCH 1: FOUNDATIONAL MATH TRAPS & DESMOS PATTERNS
+  // ========================================================
   {
     id: "m_int_01",
     section: "Math",
@@ -202,7 +205,11 @@ window.QUESTION_BANK = [
       { text: "4", trapType: "Quadrupling Assumption", trapDesc: "Assumed quadrupling happens in 4 intervals" }
     ],
     takeaway: "Avoid manual logarithmic conversions on timed tests; graph both curves in Desmos and inspect the intersection."
-  }
+  },
+
+  // ========================================================
+  // BATCH 2: READING SCOPE & GRAMMAR BOUNDARIES
+  // ========================================================
   {
     id: "rw_trans_01",
     section: "Reading & Writing",
@@ -423,5 +430,230 @@ window.QUESTION_BANK = [
       { text: "have been", trapType: "Plural Perfect Trap", trapDesc: "Plural verb phrase" }
     ],
     takeaway: "Ignore everything between the subject and the verb: 'The collection [of artifacts...] IS displayed'."
+  },
+
+  // ========================================================
+  // BATCH 3: ADVANCED DATA INFERENCE, TRIAGE TRAPS & VOCAB
+  // ========================================================
+  {
+    id: "rw_vocab_01",
+    section: "Reading & Writing",
+    topic: "Words in Context",
+    prompt: "Although early critics dismissed the painter's minimalist geometry as sterile and emotionless, contemporary curators view her stark compositions as intensely expressive, arguing that the deliberate restraint serves to _______ profound contemplative depth.",
+    carFriendly: true,
+    requiresDesmos: false,
+    recommendedTriage: "green",
+    constraint: "context clues: 'intensely expressive' and 'profound depth' need a positive verb meaning to generate or convey",
+    choices: [
+      { text: "evoke", isCorrect: true },
+      { text: "fabricate", trapType: "Negative Connotation Trap", trapDesc: "'Fabricate' implies deceit or concocting a falsehood" },
+      { text: "obscure", trapType: "Directional Reversal", trapDesc: "Means to hide or conceal, opposite of what expressive art does" },
+      { text: "alleviate", trapType: "Collocation Mismatch", trapDesc: "You alleviate pain or suffering, not artistic depth" }
+    ],
+    takeaway: "In Words in Context, match the tone and exact relationship of the sentence; avoid words that introduce unwanted connotations like deceit."
+  },
+  {
+    id: "m_geom_01",
+    section: "Math",
+    topic: "Similar Triangles & Scale Factors",
+    prompt: "Triangle ABC is similar to triangle DEF, where vertices A, B, and C correspond to D, E, and F, respectively. The length of AB is 6, and the length of DE is 18. If the area of triangle ABC is 15 square units, what is the area of triangle DEF?",
+    carFriendly: true,
+    requiresDesmos: false,
+    recommendedTriage: "yellow",
+    constraint: "area scales by the SQUARE of the linear factor",
+    choices: [
+      { text: "45", trapType: "Linear Scale Fallacy", trapDesc: "Multiplied area by linear factor (3) instead of area factor (3² = 9)" },
+      { text: "135", isCorrect: true },
+      { text: "90", trapType: "Partial Scale Fallacy", trapDesc: "Multiplied 15 by 6" },
+      { text: "405", trapType: "Cubic Scale Fallacy", trapDesc: "Multiplied by 3³ (27), which is the volume scale factor" }
+    ],
+    takeaway: "If linear lengths scale by k, surface areas scale by k², and volumes scale by k³. DE/AB = 3, so Area = 15 × 3² = 135."
+  },
+  {
+    id: "rw_data_01",
+    section: "Reading & Writing",
+    topic: "Quantitative Evidence",
+    prompt: "A research team cataloged avian feeding habits across three forest preserves. In Preserve A, insectivores composed 62% of observed foraging events. In Preserve B, frugivores accounted for 48% of events. The team concluded that Preserve A supports a higher total population of insectivores than Preserve B. Which finding, if true, would most directly undermine the team's conclusion?",
+    carFriendly: true,
+    requiresDesmos: false,
+    recommendedTriage: "yellow",
+    constraint: "percentage vs absolute count fallacy",
+    choices: [
+      { text: "Preserve B contains far denser canopy cover than Preserve A.", trapType: "Irrelevant Habitat Detail", trapDesc: "Canopy density does not directly address population counts" },
+      { text: "The total number of birds in Preserve B is more than ten times that of Preserve A.", isCorrect: true },
+      { text: "Preserve A recorded lower seasonal rainfall than Preserve B.", trapType: "Extraneous Factor", trapDesc: "Weather data does not mathematically contradict the proportion/count relationship" },
+      { text: "Some frugivores in Preserve B occasionally feed on insects during winter months.", trapType: "Minor Scope Distraction", trapDesc: "Focuses on seasonal diet shifts rather than the overall population count" }
+    ],
+    takeaway: "A higher percentage does NOT mean a higher total count. Look for answers that challenge raw base totals."
+  },
+  {
+    id: "m_stat_01",
+    section: "Math",
+    topic: "Statistics & Outliers",
+    prompt: "A dataset consists of 15 integers ranging between 20 and 40. A 16th integer, equal to 120, is added to the dataset. Which statistical measure will increase by the greatest amount?",
+    carFriendly: true,
+    requiresDesmos: false,
+    recommendedTriage: "green",
+    constraint: "outliers strongly affect mean and range; median and IQR are resistant",
+    choices: [
+      { text: "Median", trapType: "Resistance Misconception", trapDesc: "The median shifts at most to the next neighboring data point" },
+      { text: "Range", isCorrect: true },
+      { text: "Mean", trapType: "Proportional Oversight", trapDesc: "The mean increases by (120 - old_mean)/16, which is ~5.5, whereas the range expands by up to 80" },
+      { text: "Standard deviation", trapType: "Calculation Time Sink", trapDesc: "Standard deviation increases significantly, but range jumps immediately from ≤20 to ≥80" }
+    ],
+    takeaway: "Range changes by the raw distance of the new extreme value; mean changes by that distance divided by n."
+  },
+  {
+    id: "rw_trans_03",
+    section: "Reading & Writing",
+    topic: "Transitions",
+    prompt: "In 1912, Alfred Wegener cited matching fossil bands of the freshwater reptile Mesosaurus across Brazil and South Africa as evidence that the continents were once contiguous. Skeptics maintained that land bridges, long since submerged, could have allowed the animals to cross. _______ Wegener's hypothesis failed to gain widespread acceptance until seafloor spreading was documented decades later.",
+    carFriendly: true,
+    requiresDesmos: false,
+    recommendedTriage: "green",
+    constraint: "Sentence 3 is the direct logical result of the skepticism in Sentence 2",
+    choices: [
+      { text: "Thus,", isCorrect: true },
+      { text: "Conversely,", trapType: "False Contrast Trap", trapDesc: "Sentence 3 agrees with the skepticism; it does not present opposing evidence" },
+      { text: "Besides,", trapType: "Informal / Off-Tone", trapDesc: "Colloquial and indicates an afterthought rather than a logical consequence" },
+      { text: "Instead,", trapType: "Substitution Trap", trapDesc: "Used when one thing replaces another, not for concluding results" }
+    ],
+    takeaway: "'Thus' and 'Therefore' confirm a direct logical outcome: skepticism from peers led directly to lack of acceptance."
+  },
+  {
+    id: "m_circ_02",
+    section: "Math",
+    topic: "Circle Arc Length & Radians",
+    prompt: "In a circle with radius 12, an arc has a length of 8π. What is the measure of the central angle that intercepts this arc, in radians?",
+    carFriendly: true,
+    requiresDesmos: false,
+    recommendedTriage: "green",
+    constraint: "arc length formula s = rθ requires angle θ in radians",
+    choices: [
+      { text: "2π/3", isCorrect: true },
+      { text: "3π/2", trapType: "Inverted Ratio Trap", trapDesc: "Calculated r / s instead of s / r" },
+      { text: "96π", trapType: "Multiplication Trap", trapDesc: "Multiplied radius by arc length instead of dividing" },
+      { text: "120°", trapType: "Unit Trap", trapDesc: "120 is the measure in degrees, but the prompt explicitly specifies radians" }
+    ],
+    takeaway: "Use s = rθ directly: θ = s/r = 8π/12 = 2π/3. Double check whether the prompt asks for degrees or radians."
+  },
+  {
+    id: "rw_bound_03",
+    section: "Reading & Writing",
+    topic: "Standard English Boundaries",
+    prompt: "After surveying hundreds of subterranean lava tubes on the lunar _______ planetary geologist Jennifer Heldmann concluded that these protected caves could serve as viable shelters for future astronauts.",
+    carFriendly: true,
+    requiresDesmos: false,
+    recommendedTriage: "green",
+    constraint: "no comma between a restrictive modifier/prepositional object and the subject",
+    choices: [
+      { text: "surface,", isCorrect: true },
+      { text: "surface; and", trapType: "Semicolon Before Conjunction", trapDesc: "Semicolon cannot be used with a coordinating conjunction to separate a dependent clause" },
+      { text: "surface:", trapType: "Colon After Dependent Clause", trapDesc: "A colon must be preceded by an independent clause" },
+      { text: "surface", trapType: "Missing Introductory Comma", trapDesc: "Omits the mandatory comma following a dependent introductory prepositional clause" }
+    ],
+    takeaway: "An introductory dependent clause starting with 'After' must be closed with a single comma before the main subject."
+  },
+  {
+    id: "m_exp_02",
+    section: "Math",
+    topic: "Exponential Depreciation",
+    prompt: "The value of a vehicle decreases by 15% each year. If its initial value was $24,000, which expression represents its value after t years?",
+    carFriendly: true,
+    requiresDesmos: false,
+    recommendedTriage: "green",
+    constraint: "decay factor is (1 - r) = (1 - 0.15) = 0.85",
+    choices: [
+      { text: "24,000(0.15)ᵗ", trapType: "Rate As Decay Factor Trap", trapDesc: "Used the decay rate (0.15) instead of the remaining factor (0.85)" },
+      { text: "24,000(0.85)ᵗ", isCorrect: true },
+      { text: "24,000(1.15)ᵗ", trapType: "Growth Instead of Decay Trap", trapDesc: "Modeled 15% growth instead of depreciation" },
+      { text: "24,000 - (0.15)ᵗ", trapType: "Linear / Exponential Confusion", trapDesc: "Subtracted an exponential term instead of scaling the base" }
+    ],
+    takeaway: "Decreasing by r% means multiplying by (1 - r) each interval: a 15% drop retains 85% of its value (0.85)."
+  },
+  {
+    id: "rw_inf_02",
+    section: "Reading & Writing",
+    topic: "Inferences",
+    prompt: "Researchers found that when mice were fed a diet rich in polyphenol compounds, their gut microbiomes synthesized higher concentrations of short-chain fatty acids, molecules known to mitigate neuroinflammation. However, when the researchers administered antibiotics alongside the polyphenols, neuroinflammation markers remained unchanged. Which choice most logically completes the text?",
+    carFriendly: true,
+    requiresDesmos: false,
+    recommendedTriage: "yellow",
+    constraint: "antibiotics destroy gut flora, neutralizing the polyphenol benefit",
+    choices: [
+      { text: "Polyphenols directly induce brain inflammation when antibiotics are absent.", trapType: "Direct Contradiction", trapDesc: "Passage shows polyphenols lead to anti-inflammatory molecules" },
+      { text: "Gut bacteria are necessary intermediaries for polyphenols to exert their neuroprotective effects.", isCorrect: true },
+      { text: "Antibiotics permanently eradicate all metabolic functions within mammalian test subjects.", trapType: "Extreme Language Trap", trapDesc: "'Permanently eradicate all' is sweeping and unsupported" },
+      { text: "Dietary polyphenols are toxic unless consumed in the presence of antibiotics.", trapType: "Unwarranted Reversal", trapDesc: "Distorts the finding into a toxicity claim" }
+    ],
+    takeaway: "Identify the causal chain: Polyphenols + Bacteria = Protection. Polyphenols + No Bacteria (antibiotics) = No Protection. Bacteria are required."
+  },
+  {
+    id: "m_tri_01",
+    section: "Math",
+    topic: "Trigonometry Identities",
+    prompt: "In a right triangle, one acute angle has a measure of x°, where sin(x°) = 5/13. What is the value of cos(90° - x°)?",
+    carFriendly: true,
+    requiresDesmos: false,
+    recommendedTriage: "green",
+    constraint: "co-function identity: sin(θ) = cos(90° - θ)",
+    choices: [
+      { text: "12/13", trapType: "Solved for cos(x) Trap", trapDesc: "Calculated cos(x) using the 5-12-13 triangle instead of cos(90° - x)" },
+      { text: "5/13", isCorrect: true },
+      { text: "5/12", trapType: "Solved for tan(x) Trap", trapDesc: "Calculated tan(x)" },
+      { text: "8/13", trapType: "Complementary Arithmetic Slip", trapDesc: "Subtracted fraction from 1" }
+    ],
+    takeaway: "The co-function identity states that sin(x°) = cos(90° - x°). The value is identical: 5/13."
+  },
+  {
+    id: "rw_mod_02",
+    section: "Reading & Writing",
+    topic: "Dangling Modifiers",
+    prompt: "Exhausted from a grueling six-hour ascent up Mount Rainier, _______ provided a welcome respite before the final descent.",
+    carFriendly: true,
+    requiresDesmos: false,
+    recommendedTriage: "green",
+    constraint: "the entity directly after the comma must be who was exhausted",
+    choices: [
+      { text: "the climbers found that the warmth of the cabin", isCorrect: true },
+      { text: "the warmth of the mountain cabin", trapType: "Dangling Modifier Trap", trapDesc: "Implies the cabin itself was exhausted from climbing" },
+      { text: "a hot cup of tea and a meal", trapType: "Dangling Modifier Trap", trapDesc: "Implies tea and food were exhausted from climbing" },
+      { text: "it was clear to the guides that resting", trapType: "Empty Pronoun / Dangling Trap", trapDesc: "Expletive pronoun fails to provide the person who performed the ascent" }
+    ],
+    takeaway: "When a sentence starts with an action/state modifier ('Exhausted...'), the person doing that action must immediately follow the comma."
+  },
+  {
+    id: "m_quad_03",
+    section: "Math",
+    topic: "Discriminants & Tangency",
+    prompt: "For what value of b will the quadratic equation 3x² + bx + 12 = 0 have exactly one real solution, where b > 0?",
+    carFriendly: true,
+    requiresDesmos: false,
+    recommendedTriage: "green",
+    constraint: "exactly one solution means discriminant b² - 4ac = 0, AND b > 0",
+    choices: [
+      { text: "-12", trapType: "Violated Positive Constraint", trapDesc: "Yields discriminant 0, but violates the prompt constraint that b > 0" },
+      { text: "12", isCorrect: true },
+      { text: "144", trapType: "Reported b² Trap", trapDesc: "Reported b² = 144 instead of taking the square root" },
+      { text: "36", trapType: "Arithmetic Slip", trapDesc: "Equated b = 4ac / 4" }
+    ],
+    takeaway: "b² - 4(3)(12) = 0 implies b² = 144, so b = ±12. The constraint 'b > 0' eliminates -12."
+  },
+  {
+    id: "rw_verb_02",
+    section: "Reading & Writing",
+    topic: "Subject-Verb Agreement",
+    prompt: "Neither the principal investigator nor the field biologists _______ able to explain the sudden migration pattern observed during the eclipse.",
+    carFriendly: true,
+    requiresDesmos: false,
+    recommendedTriage: "green",
+    constraint: "in 'neither...nor', the verb agrees with the closer subject ('biologists' - plural)",
+    choices: [
+      { text: "was", trapType: "Proximity Inversion Trap", trapDesc: "Matched verb to the distant singular subject 'investigator'" },
+      { text: "were", isCorrect: true },
+      { text: "is", trapType: "Tense Inconsistency", trapDesc: "Present tense clashes with past tense 'observed'" },
+      { text: "has been", trapType: "Singular Perfect Trap", trapDesc: "Singular verb form" }
+    ],
+    takeaway: "With 'Neither...nor' or 'Either...or', the verb matches the subject closest to it: 'biologists WERE'."
   }
 ];
