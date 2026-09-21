@@ -32,7 +32,17 @@
   </header>
 
   <!-- SCREEN 1: HUB / MODE SELECTOR -->
-  <main id="screen-hub" class="w-full max-w-xl flex flex-col gap-5 mt-4">
+  <main id="screen-hub" class="w-full max-w-xl flex flex-col gap-5 mt-2">
+    <!-- SUBJECT FILTER TOGGLE -->
+    <div class="bg-slate-900 border border-slate-800 p-3 rounded-xl flex items-center justify-between gap-2">
+      <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider pl-1">Focus Area:</span>
+      <div class="flex gap-1.5" id="subject-filter-group">
+        <button onclick="setSubjectFilter('all')" id="filter-all" class="px-3 py-1.5 text-xs rounded-lg font-bold border border-blue-500 bg-blue-900/60 text-white transition">All</button>
+        <button onclick="setSubjectFilter('Math')" id="filter-math" class="px-3 py-1.5 text-xs rounded-lg font-bold border border-slate-700 bg-slate-800 text-slate-400 hover:text-white transition">Math</button>
+        <button onclick="setSubjectFilter('Reading & Writing')" id="filter-rw" class="px-3 py-1.5 text-xs rounded-lg font-bold border border-slate-700 bg-slate-800 text-slate-400 hover:text-white transition">Reading & Writing</button>
+      </div>
+    </div>
+
     <div class="bg-slate-900/90 border border-slate-800 p-6 rounded-2xl shadow-xl">
       <div class="text-amber-400 text-xs font-semibold uppercase tracking-wider mb-1">Commute & Quick Reflexes</div>
       <h2 class="text-xl font-bold text-white mb-2">🚗 Drive Mode (3–5 Min)</h2>
@@ -173,7 +183,9 @@
   <script>
     const QUESTIONS = window.QUESTION_BANK || [];
 
-    // STATE MANAGEMENT
+    // ACTIVE FILTER & STATE
+    let selectedSubject = "all";
+
     let userStats = JSON.parse(localStorage.getItem("sat_user_stats")) || {
       streak: 1,
       lastDate: new Date().toDateString(),
@@ -191,6 +203,29 @@
     let labInterval = null;
     let labLog = [];
     let desmosInstance = null;
+
+    function setSubjectFilter(subject) {
+      selectedSubject = subject;
+      document.getElementById("filter-all").className = subject === 'all' 
+        ? "px-3 py-1.5 text-xs rounded-lg font-bold border border-blue-500 bg-blue-900/60 text-white transition"
+        : "px-3 py-1.5 text-xs rounded-lg font-bold border border-slate-700 bg-slate-800 text-slate-400 hover:text-white transition";
+        
+      document.getElementById("filter-math").className = subject === 'Math'
+        ? "px-3 py-1.5 text-xs rounded-lg font-bold border border-blue-500 bg-blue-900/60 text-white transition"
+        : "px-3 py-1.5 text-xs rounded-lg font-bold border border-slate-700 bg-slate-800 text-slate-400 hover:text-white transition";
+        
+      document.getElementById("filter-rw").className = subject === 'Reading & Writing'
+        ? "px-3 py-1.5 text-xs rounded-lg font-bold border border-blue-500 bg-blue-900/60 text-white transition"
+        : "px-3 py-1.5 text-xs rounded-lg font-bold border border-slate-700 bg-slate-800 text-slate-400 hover:text-white transition";
+    }
+
+    function getFilteredQuestions(carOnly = false) {
+      return QUESTIONS.filter(q => {
+        const matchesSubject = (selectedSubject === "all") || (q.section === selectedSubject);
+        const matchesCar = carOnly ? q.carFriendly : true;
+        return matchesSubject && matchesCar;
+      });
+    }
 
     function saveStats() {
       localStorage.setItem("sat_user_stats", JSON.stringify(userStats));
@@ -227,9 +262,12 @@
     // DRIVE MODE LOGIC
     // ==========================================
     function startDriveMode() {
-      const carQuestions = QUESTIONS.filter(q => q.carFriendly);
-      // Shuffle and pick 5
-      driveDeck = [...carQuestions].sort(() => 0.5 - Math.random()).slice(0, 5);
+      const eligible = getFilteredQuestions(true);
+      if (eligible.length === 0) {
+        alert("No questions available for this filter yet!");
+        return;
+      }
+      driveDeck = [...eligible].sort(() => 0.5 - Math.random()).slice(0, 5);
       driveIndex = 0;
       showScreen("screen-drive");
       renderDriveCard();
@@ -271,7 +309,7 @@
         text.textContent = `${choice.trapDesc}. Tactical Rule: ${q.takeaway}`;
       } else {
         btn.className = "w-full text-left p-3.5 rounded-xl border border-amber-500 bg-amber-950/80 text-amber-200";
-        title.innerHTML = `<span class="text-amber-400">Notice:</span> That was the mathematically correct answer!`;
+        title.innerHTML = `<span class="text-amber-400">Notice:</span> That was the correct answer!`;
         text.textContent = `In Trap Spotter mode, your goal is to locate the deceptive bait answer before solving. Tactical Rule: ${q.takeaway}`;
       }
       saveStats();
@@ -290,9 +328,13 @@
     // LAB MODE: TRIAGE PHASE
     // ==========================================
     function startLabTriage() {
+      const eligible = getFilteredQuestions(false);
+      if (eligible.length === 0) {
+        alert("No questions available for this filter yet!");
+        return;
+      }
       labTriageSelections = {};
-      // Sample 6 questions for a lab module
-      labDeck = [...QUESTIONS].sort(() => 0.5 - Math.random()).slice(0, 6);
+      labDeck = [...eligible].sort(() => 0.5 - Math.random()).slice(0, 6);
       showScreen("screen-lab-triage");
       const list = document.getElementById("triage-items-list");
       list.innerHTML = "";
