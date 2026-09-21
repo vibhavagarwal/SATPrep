@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SAT Strategy Reflex Trainer</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://www.desmos.com/api/v1.9/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script>
+  <script src="questions.js"></script>
+  <style>
+    .choice-btn:disabled { cursor: default; }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans flex flex-col items-center p-3 sm:p-6">
+
+  <!-- TOP APP BAR -->
+  <header class="w-full max-w-5xl flex items-center justify-between pb-4 mb-4 border-b border-slate-800">
+    <div>
+      <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
+        <span class="text-amber-400">⚡</span> SAT Strategy Reflex
+      </h1>
+      <p class="text-xs text-slate-400">Tactical execution, trap recognition, and triage</p>
+    </div>
+    <div id="stats-badge" class="flex gap-4 text-xs sm:text-sm">
+      <div class="bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-lg">
+        <span class="text-slate-400">Streak:</span> <strong id="streak-counter" class="text-amber-400">1 Day</strong>
+      </div>
+      <div class="bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-lg">
+        <span class="text-slate-400">Traps Spot Rate:</span> <strong id="traps-avoided" class="text-emerald-400">0%</strong>
+      </div>
+    </div>
+  </header>
+
+  <!-- SCREEN 1: HUB / MODE SELECTOR -->
+  <main id="screen-hub" class="w-full max-w-xl flex flex-col gap-5 mt-4">
+    <div class="bg-slate-900/90 border border-slate-800 p-6 rounded-2xl shadow-xl">
+      <div class="text-amber-400 text-xs font-semibold uppercase tracking-wider mb-1">Commute & Quick Reflexes</div>
+      <h2 class="text-xl font-bold text-white mb-2">🚗 Drive Mode (3–5 Min)</h2>
+      <p class="text-sm text-slate-300 mb-4 leading-relaxed">
+        Zero scratch paper required. Rapid-fire cards to train your eye: identify College Board trap architecture, hunt critical constraints, and decide between Desmos or hand solving.
+      </p>
+      <button onclick="startDriveMode()" class="w-full py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl transition shadow-lg shadow-amber-500/10">
+        Start 5-Card Reflex Sprint
+      </button>
+    </div>
+
+    <div class="bg-slate-900/90 border border-slate-800 p-6 rounded-2xl shadow-xl">
+      <div class="text-blue-400 text-xs font-semibold uppercase tracking-wider mb-1">Desk & Full Setup</div>
+      <h2 class="text-xl font-bold text-white mb-2">🔬 Lab Mode (15–30 Min)</h2>
+      <p class="text-sm text-slate-300 mb-4 leading-relaxed">
+        Endurance and pacing simulation. Walk through a rapid triage pass (Green / Yellow / Red), execute under live countdown with a side-by-side Desmos graphing pane, and review your tactical debrief.
+      </p>
+      <button onclick="startLabTriage()" class="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition shadow-lg shadow-blue-600/10">
+        Launch Triage & Execution Lab
+      </button>
+    </div>
+  </main>
+
+  <!-- SCREEN 2: DRIVE MODE -->
+  <section id="screen-drive" class="hidden w-full max-w-xl flex-col">
+    <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-800 text-sm">
+      <span class="text-amber-400 font-semibold" id="drive-progress">Card 1 of 5</span>
+      <button onclick="returnToHub()" class="text-slate-400 hover:text-white text-xs">✕ Exit</button>
+    </div>
+
+    <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl mb-4">
+      <div class="text-xs uppercase tracking-wider text-slate-400 mb-1" id="drive-directive">Tactical Objective</div>
+      <h3 class="text-base sm:text-lg font-medium text-slate-100 leading-relaxed" id="drive-prompt"></h3>
+    </div>
+
+    <div id="drive-choices" class="flex flex-col gap-3"></div>
+
+    <div id="drive-feedback" class="hidden mt-4 p-4 rounded-xl border bg-slate-900 text-sm">
+      <div id="drive-feedback-title" class="font-bold mb-1"></div>
+      <div id="drive-feedback-text" class="text-slate-300 leading-relaxed"></div>
+      <button onclick="nextDriveCard()" class="mt-4 w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-lg transition">
+        Next Reflex Drill
+      </button>
+    </div>
+  </section>
+
+  <!-- SCREEN 3: LAB MODE - TRIAGE PASS -->
+  <section id="screen-lab-triage" class="hidden w-full max-w-2xl flex-col">
+    <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl mb-4">
+      <div class="flex justify-between items-center mb-2">
+        <span class="text-blue-400 text-xs font-semibold uppercase tracking-wider">Phase 1: The 60-Second Triage Pass</span>
+        <button onclick="returnToHub()" class="text-slate-400 hover:text-white text-xs">✕ Exit</button>
+      </div>
+      <h2 class="text-lg font-bold text-white mb-2">Tag Your Strategy Before Solving</h2>
+      <p class="text-sm text-slate-300 leading-relaxed mb-4">
+        Do not solve these now. For each question, decide your order of battle:
+        <span class="text-emerald-400 font-semibold">Green</span> (immediate win), 
+        <span class="text-amber-400 font-semibold">Yellow</span> (park for later / heavy steps), or 
+        <span class="text-rose-400 font-semibold">Red</span> (time sink / guess & walk).
+      </p>
+
+      <div id="triage-items-list" class="space-y-4"></div>
+
+      <button onclick="launchLabExecution()" class="mt-6 w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl transition">
+        Confirm Triage & Begin Timed Execution
+      </button>
+    </div>
+  </section>
+
+  <!-- SCREEN 4: LAB MODE - TIMED EXECUTION + DESMOS WORKSPACE -->
+  <section id="screen-lab-execution" class="hidden w-full max-w-5xl flex-col">
+    <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-800 text-sm">
+      <div class="flex items-center gap-3">
+        <span class="font-bold text-white" id="lab-q-indicator">Question 1 of 4</span>
+        <span id="lab-q-triage-badge" class="px-2 py-0.5 text-xs rounded font-semibold"></span>
+      </div>
+      <div class="flex items-center gap-4">
+        <span class="text-slate-400 text-xs">Time: <strong id="lab-timer" class="text-amber-400 text-sm font-mono">00:00</strong></span>
+        <button onclick="returnToHub()" class="text-slate-400 hover:text-white text-xs">✕ Exit</button>
+      </div>
+    </div>
+
+    <!-- Responsive Split: Left question pane, Right Desmos pane -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl flex flex-col justify-between">
+        <div>
+          <div class="text-xs uppercase text-slate-400 mb-1" id="lab-domain">Domain</div>
+          <div class="text-base text-slate-100 font-medium mb-6 leading-relaxed" id="lab-prompt"></div>
+          <div id="lab-choices" class="space-y-3"></div>
+        </div>
+
+        <div id="lab-feedback" class="hidden mt-6 p-4 rounded-xl border bg-slate-950 text-sm">
+          <div id="lab-feedback-title" class="font-bold mb-1"></div>
+          <div id="lab-feedback-takeaway" class="text-slate-300 mb-3"></div>
+          <button onclick="nextLabQuestion()" class="w-full py-2 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-lg transition">
+            Continue Next
+          </button>
+        </div>
+      </div>
+
+      <!-- Live Desmos Graphing Calculator Frame -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-2 flex flex-col min-h-[400px] lg:min-h-[520px]">
+        <div class="flex items-center justify-between px-3 py-1 text-xs text-slate-400 border-b border-slate-800 mb-2">
+          <span>Desmos Graphing Workspace</span>
+          <span class="text-slate-500">Official Bluebook API</span>
+        </div>
+        <div id="desmos-calculator" class="w-full flex-grow rounded-lg overflow-hidden"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SCREEN 5: LAB DEBRIEF -->
+  <section id="screen-lab-debrief" class="hidden w-full max-w-2xl flex-col">
+    <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl">
+      <h2 class="text-xl font-bold text-white mb-1">Tactical Execution Debrief</h2>
+      <p class="text-xs text-slate-400 mb-4">Focus on pacing discipline, trap circumvention, and triage accuracy</p>
+
+      <div class="grid grid-cols-2 gap-3 mb-6">
+        <div class="p-3 bg-slate-950 border border-slate-800 rounded-xl text-center">
+          <div class="text-xs text-slate-400">Triage Alignment</div>
+          <div id="debrief-triage-accuracy" class="text-xl font-bold text-emerald-400">0%</div>
+        </div>
+        <div class="p-3 bg-slate-950 border border-slate-800 rounded-xl text-center">
+          <div class="text-xs text-slate-400">Traps Avoided</div>
+          <div id="debrief-traps-ratio" class="text-xl font-bold text-amber-400">0/0</div>
+        </div>
+      </div>
+
+      <h3 class="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-2">Decision Log</h3>
+      <div id="debrief-log" class="space-y-3 mb-6 text-sm"></div>
+
+      <button onclick="returnToHub()" class="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition">
+        Return to Strategy Hub
+      </button>
+    </div>
+  </section>
+
+  <script>
+    const QUESTIONS = window.QUESTION_BANK || [];
+
+    // STATE MANAGEMENT
+    let userStats = JSON.parse(localStorage.getItem("sat_user_stats")) || {
+      streak: 1,
+      lastDate: new Date().toDateString(),
+      trapsSeen: 0,
+      trapsAvoided: 0
+    };
+
+    let driveIndex = 0;
+    let driveDeck = [];
+
+    let labDeck = [];
+    let labTriageSelections = {};
+    let labIndex = 0;
+    let labTimerSeconds = 0;
+    let labInterval = null;
+    let labLog = [];
+    let desmosInstance = null;
+
+    function saveStats() {
+      localStorage.setItem("sat_user_stats", JSON.stringify(userStats));
+      updateStatsUI();
+    }
+
+    function updateStatsUI() {
+      document.getElementById("streak-counter").textContent = `${userStats.streak} Day${userStats.streak > 1 ? 's' : ''}`;
+      const rate = userStats.trapsSeen > 0 ? Math.round((userStats.trapsAvoided / userStats.trapsSeen) * 100) : 0;
+      document.getElementById("traps-avoided").textContent = `${rate}% (${userStats.trapsAvoided}/${userStats.trapsSeen})`;
+    }
+
+    function hideAllScreens() {
+      ["screen-hub", "screen-drive", "screen-lab-triage", "screen-lab-execution", "screen-lab-debrief"].forEach(id => {
+        document.getElementById(id).classList.add("hidden");
+        document.getElementById(id).classList.remove("flex");
+      });
+    }
+
+    function showScreen(id) {
+      hideAllScreens();
+      const el = document.getElementById(id);
+      el.classList.remove("hidden");
+      el.classList.add("flex");
+    }
+
+    function returnToHub() {
+      clearInterval(labInterval);
+      showScreen("screen-hub");
+      updateStatsUI();
+    }
+
+    // ==========================================
+    // DRIVE MODE LOGIC
+    // ==========================================
+    function startDriveMode() {
+      const carQuestions = QUESTIONS.filter(q => q.carFriendly);
+      // Shuffle and pick 5
+      driveDeck = [...carQuestions].sort(() => 0.5 - Math.random()).slice(0, 5);
+      driveIndex = 0;
+      showScreen("screen-drive");
+      renderDriveCard();
+    }
+
+    function renderDriveCard() {
+      const q = driveDeck[driveIndex];
+      document.getElementById("drive-progress").textContent = `Card ${driveIndex + 1} of ${driveDeck.length}`;
+      document.getElementById("drive-directive").textContent = "🎯 Trap Spotter: Tap the trap College Board designed to bait rushers";
+      document.getElementById("drive-prompt").textContent = q.prompt;
+
+      const container = document.getElementById("drive-choices");
+      const feedback = document.getElementById("drive-feedback");
+      container.innerHTML = "";
+      feedback.classList.add("hidden");
+
+      q.choices.forEach(choice => {
+        const btn = document.createElement("button");
+        btn.className = "w-full text-left p-3.5 rounded-xl border border-slate-800 bg-slate-900 hover:bg-slate-800 font-medium text-slate-200 transition choice-btn";
+        btn.textContent = choice.text;
+        btn.onclick = () => handleDriveSelection(choice, btn, q);
+        container.appendChild(btn);
+      });
+    }
+
+    function handleDriveSelection(choice, btn, q) {
+      document.querySelectorAll("#drive-choices button").forEach(b => b.disabled = true);
+      const feedback = document.getElementById("drive-feedback");
+      const title = document.getElementById("drive-feedback-title");
+      const text = document.getElementById("drive-feedback-text");
+      feedback.classList.remove("hidden");
+
+      userStats.trapsSeen++;
+
+      if (choice.trapType) {
+        userStats.trapsAvoided++;
+        btn.className = "w-full text-left p-3.5 rounded-xl border border-emerald-500 bg-emerald-950/80 text-emerald-200";
+        title.innerHTML = `<span class="text-emerald-400">✓ Spot-On:</span> Identified the ${choice.trapType}`;
+        text.textContent = `${choice.trapDesc}. Tactical Rule: ${q.takeaway}`;
+      } else {
+        btn.className = "w-full text-left p-3.5 rounded-xl border border-amber-500 bg-amber-950/80 text-amber-200";
+        title.innerHTML = `<span class="text-amber-400">Notice:</span> That was the mathematically correct answer!`;
+        text.textContent = `In Trap Spotter mode, your goal is to locate the deceptive bait answer before solving. Tactical Rule: ${q.takeaway}`;
+      }
+      saveStats();
+    }
+
+    function nextDriveCard() {
+      driveIndex++;
+      if (driveIndex < driveDeck.length) {
+        renderDriveCard();
+      } else {
+        returnToHub();
+      }
+    }
+
+    // ==========================================
+    // LAB MODE: TRIAGE PHASE
+    // ==========================================
+    function startLabTriage() {
+      labTriageSelections = {};
+      // Sample 6 questions for a lab module
+      labDeck = [...QUESTIONS].sort(() => 0.5 - Math.random()).slice(0, 6);
+      showScreen("screen-lab-triage");
+      const list = document.getElementById("triage-items-list");
+      list.innerHTML = "";
+
+      labDeck.forEach((q, idx) => {
+        const card = document.createElement("div");
+        card.className = "p-3.5 bg-slate-950 border border-slate-800 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3";
+        card.innerHTML = `
+          <div class="text-xs sm:text-sm text-slate-300 flex-1">
+            <strong class="text-white">Q${idx + 1} (${q.topic}):</strong> ${q.prompt.substring(0, 75)}...
+          </div>
+          <div class="flex gap-1.5 self-end sm:self-center" id="triage-group-${idx}">
+            <button onclick="setTriage(${idx}, 'green')" class="px-2.5 py-1 text-xs rounded border border-slate-700 bg-slate-800 hover:bg-emerald-950 text-slate-300">🟢 Fast</button>
+            <button onclick="setTriage(${idx}, 'yellow')" class="px-2.5 py-1 text-xs rounded border border-slate-700 bg-slate-800 hover:bg-amber-950 text-slate-300">🟡 Park</button>
+            <button onclick="setTriage(${idx}, 'red')" class="px-2.5 py-1 text-xs rounded border border-slate-700 bg-slate-800 hover:bg-rose-950 text-slate-300">🔴 Bail</button>
+          </div>
+        `;
+        list.appendChild(card);
+      });
+    }
+
+    function setTriage(qIndex, category) {
+      labTriageSelections[qIndex] = category;
+      const group = document.getElementById(`triage-group-${qIndex}`);
+      const buttons = group.querySelectorAll("button");
+      buttons[0].className = category === 'green' ? "px-2.5 py-1 text-xs rounded border border-emerald-500 bg-emerald-900 text-white font-bold" : "px-2.5 py-1 text-xs rounded border border-slate-700 bg-slate-800 text-slate-400";
+      buttons[1].className = category === 'yellow' ? "px-2.5 py-1 text-xs rounded border border-amber-500 bg-amber-900 text-white font-bold" : "px-2.5 py-1 text-xs rounded border border-slate-700 bg-slate-800 text-slate-400";
+      buttons[2].className = category === 'red' ? "px-2.5 py-1 text-xs rounded border border-rose-500 bg-rose-900 text-white font-bold" : "px-2.5 py-1 text-xs rounded border border-slate-700 bg-slate-800 text-slate-400";
+    }
+
+    // ==========================================
+    // LAB MODE: EXECUTION PHASE & DESMOS
+    // ==========================================
+    function launchLabExecution() {
+      labIndex = 0;
+      labLog = [];
+      showScreen("screen-lab-execution");
+
+      if (!desmosInstance) {
+        const elt = document.getElementById('desmos-calculator');
+        desmosInstance = Desmos.GraphingCalculator(elt, {
+          keypad: true,
+          expressions: true,
+          settingsMenu: false
+        });
+      }
+
+      startLabTimer();
+      renderLabQuestion();
+    }
+
+    function startLabTimer() {
+      clearInterval(labInterval);
+      labTimerSeconds = 0;
+      const timerEl = document.getElementById("lab-timer");
+      labInterval = setInterval(() => {
+        labTimerSeconds++;
+        const mins = String(Math.floor(labTimerSeconds / 60)).padStart(2, '0');
+        const secs = String(labTimerSeconds % 60).padStart(2, '0');
+        timerEl.textContent = `${mins}:${secs}`;
+      }, 1000);
+    }
+
+    function renderLabQuestion() {
+      const q = labDeck[labIndex];
+      document.getElementById("lab-q-indicator").textContent = `Question ${labIndex + 1} of ${labDeck.length}`;
+      document.getElementById("lab-domain").textContent = `${q.section} • ${q.topic}`;
+      document.getElementById("lab-prompt").textContent = q.prompt;
+
+      const triageBadge = document.getElementById("lab-q-triage-badge");
+      const userTriage = labTriageSelections[labIndex] || "unranked";
+      triageBadge.textContent = `Your Triage: ${userTriage.toUpperCase()}`;
+      triageBadge.className = userTriage === 'green' ? "px-2 py-0.5 text-xs rounded bg-emerald-950 border border-emerald-600 text-emerald-300 font-semibold"
+        : userTriage === 'yellow' ? "px-2 py-0.5 text-xs rounded bg-amber-950 border border-amber-600 text-amber-300 font-semibold"
+        : "px-2 py-0.5 text-xs rounded bg-rose-950 border border-rose-600 text-rose-300 font-semibold";
+
+      const container = document.getElementById("lab-choices");
+      const feedback = document.getElementById("lab-feedback");
+      container.innerHTML = "";
+      feedback.classList.add("hidden");
+
+      q.choices.forEach(choice => {
+        const btn = document.createElement("button");
+        btn.className = "w-full text-left p-3.5 rounded-xl border border-slate-800 bg-slate-950 hover:bg-slate-800 text-slate-200 transition choice-btn";
+        btn.textContent = choice.text;
+        btn.onclick = () => handleLabChoice(choice, btn, q);
+        container.appendChild(btn);
+      });
+    }
+
+    function handleLabChoice(choice, selectedBtn, q) {
+      document.querySelectorAll("#lab-choices button").forEach(b => b.disabled = true);
+      const feedback = document.getElementById("lab-feedback");
+      const title = document.getElementById("lab-feedback-title");
+      const takeaway = document.getElementById("lab-feedback-takeaway");
+      feedback.classList.remove("hidden");
+
+      userStats.trapsSeen++;
+
+      const isCorrect = choice.isCorrect === true;
+      if (isCorrect) {
+        userStats.trapsAvoided++;
+        selectedBtn.className = "w-full text-left p-3.5 rounded-xl border border-emerald-500 bg-emerald-950/80 text-emerald-200";
+        title.innerHTML = "<span class='text-emerald-400'>✓ Correct Execution</span>";
+      } else {
+        selectedBtn.className = "w-full text-left p-3.5 rounded-xl border border-rose-500 bg-rose-950/80 text-rose-200";
+        title.innerHTML = `<span class='text-rose-400'>⚠️ Trap Encountered:</span> ${choice.trapType || 'Calculation Slip'}`;
+      }
+
+      takeaway.textContent = `${choice.trapDesc ? choice.trapDesc + ' — ' : ''}${q.takeaway}`;
+
+      const userTriage = labTriageSelections[labIndex];
+      const triageMatched = userTriage === q.recommendedTriage;
+
+      labLog.push({
+        topic: q.topic,
+        isCorrect,
+        trapType: choice.trapType || null,
+        userTriage,
+        recommendedTriage: q.recommendedTriage,
+        triageMatched,
+        takeaway: q.takeaway
+      });
+
+      saveStats();
+    }
+
+    function nextLabQuestion() {
+      labIndex++;
+      if (labIndex < labDeck.length) {
+        renderLabQuestion();
+      } else {
+        finishLabSession();
+      }
+    }
+
+    // ==========================================
+    // LAB MODE: DEBRIEF
+    // ==========================================
+    function finishLabSession() {
+      clearInterval(labInterval);
+      showScreen("screen-lab-debrief");
+
+      const total = labLog.length;
+      const triageMatches = labLog.filter(item => item.triageMatched).length;
+      const correct = labLog.filter(item => item.isCorrect).length;
+
+      document.getElementById("debrief-triage-accuracy").textContent = `${Math.round((triageMatches / total) * 100)}%`;
+      document.getElementById("debrief-traps-ratio").textContent = `${correct}/${total}`;
+
+      const logContainer = document.getElementById("debrief-log");
+      logContainer.innerHTML = "";
+
+      labLog.forEach((entry, idx) => {
+        const item = document.createElement("div");
+        item.className = "p-3 bg-slate-950 border border-slate-800 rounded-xl";
+        item.innerHTML = `
+          <div class="flex items-center justify-between text-xs mb-1">
+            <span class="font-bold text-white">Q${idx + 1}: ${entry.topic}</span>
+            <span class="${entry.isCorrect ? 'text-emerald-400' : 'text-rose-400'}">${entry.isCorrect ? '✓ Navigated' : 'Caught in Trap'}</span>
+          </div>
+          <div class="text-xs text-slate-400">
+            Triage: ${entry.triageMatched ? 'Aligned with expert triage' : `Tagged ${entry.userTriage?.toUpperCase()} (Recommended: ${entry.recommendedTriage.toUpperCase()})`}
+          </div>
+          <div class="text-xs text-amber-300/90 mt-1.5 font-medium">
+            Rule: ${entry.takeaway}
+          </div>
+        `;
+        logContainer.appendChild(item);
+      });
+    }
+
+    // INITIALIZATION
+    updateStatsUI();
+  </script>
+</body>
+</html>
